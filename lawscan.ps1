@@ -1,5 +1,7 @@
 # This script is used to scan if the diagnostics setting is enabled for each Azure resources 
 
+# Run the powershell script in the background
+# start-job -ScriptBlock{. ./lawscan.ps1 > result.csv}
 
 #$allsubscription=Get-AzSubscription
 #foreach ($currentsub in $allsubscription){
