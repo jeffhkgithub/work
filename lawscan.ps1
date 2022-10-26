@@ -6,6 +6,7 @@
 #$allsubscription=Get-AzSubscription
 #foreach ($currentsub in $allsubscription){
 #Select-AzSubscription -SubscriptionId $currentsub.Id
+#Select-AzSubscription -SubscriptionName ""
 
 $resources = Get-AzResource
 #$resources = Get-AzResource | where ResourceType -Match "Microsoft.compute"
