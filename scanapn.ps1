@@ -1,41 +1,26 @@
-# Only one subscription 
 
-$BU_name="XXXXX"
-#Select-AzSubscription -SubscriptionName $BU_name -Tenant "XXXXX"
+$AllBU=$(az account list --all -o tsv --query "[].name")
 
-$apn_id=az appservice plan list --output tsv --query "[].id"
+foreach ($BUname in $AllBU){
 
-Write-Output "The redundant status of app service plan"
-
-foreach ($apnid in $apn_id) {
-    az appservice plan show --id $apnid --output tsv --query "{Name:name, Status:properties.status, Location:location, Pricing_Tier:sku.tier, AppServicePlan:id, Subscription:properties.subscription,  Type:kind, isRedundant:properties.zoneRedundant, IsAutoScale:properties.elasticScaleEnabled, Instance_Count:properties.numberOfWorkers, MaxNumberWorker:properties.maximumNumberOfWorkers, ResourceGroup:resourceGroup}"
-    #az appservice plan show --id $apnid --output tsv --query "{Name:name, ResourceGroup:resourceGroup, isRedundant:properties.zoneRedundant, Subscription:properties.subscription}"
-}
-
-Write-Output "`n`n#############################################################################################"
-Write-Output "Get the status of LogicApp, WepApp and FunctionApp"
-Write-Output "#############################################################################################"
-Get-AzWebApp | Select -Property Name, Kind, State, ServerFarmId
-
-
-
-# Automate for every subscriptions
-<#
-$allsubscription=Get-AzSubscription
-foreach ($currentsub in $allsubscription){
-Select-AzSubscription -SubscriptionId $currentsub.Id
-
-
-$apn_id=az appservice plan list --output tsv --query "[].id"
-
-Write-Output "The redundant status of app service plan"
-
-foreach ($apnid in $apn_id) {
-    az appservice plan show --id $apnid --output tsv --query "{Name:name, ResourceGroup:resourceGroup, isRedundant:properties.zoneRedundant, Subscription:properties.subscription}"
-}
-
-
+    Write-Output "`n`n#############################################################################################"
+    Write-Output $BUname
+    Write-Output "#############################################################################################"
+    Write-Output "`n`n#############################################################################################"
+    Write-Output "Get the status of AppServie Plan"
+    Write-Output "#############################################################################################"
+    az appservice plan list --output tsv --query "[].{ AppServicePlan:id, Name:name, Status:status, Location:location, Pricing_Tier:sku.tier, isRedundant:zoneRedundant, IsAutoScale:elasticScaleEnabled, Instance_Count:numberOfWorkers, MaxNumberWorker:maximumNumberOfWorkers, ResourceGroup:resourceGroup}"
+    Write-Output "`n`n#############################################################################################"
+    Write-Output "Get the status of Webapp"
+    Write-Output "#############################################################################################"
+    az webapp list --output tsv --query "[].{AppName:name, Location:location, Type:kind, Status:state, AppServicePlan:appServicePlanId}"
+    Write-Output "`n`n#############################################################################################"
+    Write-Output "Get the status of FunctionApp"
+    Write-Output "#############################################################################################"
+    az functionapp list --output tsv --query "[].{AppName:name, Location:location, Type:kind, Status:state, AppServicePlan:appServicePlanId}"
+    Write-Output "`n`n#############################################################################################"
+    Write-Output "Get the status of LogicApp"
+    Write-Output "#############################################################################################"
+    az logicapp list --output tsv --query "[].{AppName:name, Location:location, Type:kind, Status:state, AppServicePlan:appServicePlanId}"
 
 }
-
-#>
