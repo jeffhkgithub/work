@@ -14,7 +14,12 @@ foreach ($BUname in $AllBU){
     Write-Output "#############################################################################################"
     $allsqlid=$(az sql server list --query "[?type=='Microsoft.Sql/servers'].id" -o tsv)
     foreach ($id in $allsqlid) {
-        az sql db list --ids $id -o tsv --query "[].{SKU_name:currentSku.name, SKU_capacity:currentSku.capacity, SKU_family:currentSku.family, SKU_tier:currentSku.tier, SKU_size:currentSku.size, SQLserver:id, database_name:name, Type:type, ResourceGroup:resourceGroup, Status:status,isZoneRedundant:zoneRedundant}"
+        #az sql db list --ids $id -o tsv --query "[].{location:location, SKU_name:currentSku.name, SKU_capacity:currentSku.capacity, SKU_family:currentSku.family, SKU_tier:currentSku.tier, SKU_size:currentSku.size, SQLserver:id, location:location, database_name:name, Type:type, ResourceGroup:resourceGroup, Status:status,isZoneRedundant:zoneRedundant}"
+        $result=$(az sql db list --ids $id -o tsv --query "[].{location:location, SKU_name:currentSku.name, SKU_capacity:currentSku.capacity, SKU_family:currentSku.family, SKU_tier:currentSku.tier, SKU_size:currentSku.size, SQLserver:id, location:location, database_name:name, Type:type, ResourceGroup:resourceGroup, Status:status,isZoneRedundant:zoneRedundant}")
+        foreach ($item in $result) {
+            $row = $id + " " + $item
+            echo $row
+        }
     }
     Write-Output "#############################################################################################"
     Write-Output "`n`n#############################################################################################"
@@ -22,7 +27,7 @@ foreach ($BUname in $AllBU){
     Write-Output "#############################################################################################"
     $allpostgresqlflexibleid=$(az postgres flexible-server list --query "[].id" -o tsv)
     foreach ($id in $allpostgresqlflexibleid) {
-        az postgres flexible-server show -o tsv --ids $id --query "{ServerName:name, ResourceGroup:resourceGroup, SKU_Name:sku.name, SKU_Tier:sku.tier, isRedundant:highAvailability.mode, State:state, StorageSize:storage.storageSizeGb, id:id}"
+        az postgres flexible-server show -o tsv --ids $id --query "{location:location, ServerName:name, ResourceGroup:resourceGroup, SKU_Name:sku.name, SKU_Tier:sku.tier, isRedundant:highAvailability.mode, State:state, StorageSize:storage.storageSizeGb, id:id}"
     }
     Write-Output "#############################################################################################"
     Write-Output "`n`n#############################################################################################"
@@ -32,10 +37,14 @@ foreach ($BUname in $AllBU){
     $allpostgresqlflexibleid=$(az postgres flexible-server list --query "[].id" -o tsv)
     foreach ($id in $allpostgresqlflexibleid) {
          $servermetadata=az postgres flexible-server show -o tsv --ids $id --query "[name, resourceGroup]"
-         echo $id
+         #echo $id
          # Copy the $id next to each result
-         az postgres flexible-server db list --server $servermetadata[0] -g $servermetadata[1] -o tsv --query "[].name"
+         $result=$(az postgres flexible-server db list --server $servermetadata[0] -g $servermetadata[1] -o tsv --query "[].name")
+        foreach ($item in $result) {
+            $row = $id + " " + $item
+            echo $row        
          #$result=$id+" "+$(az postgres flexible-server db list --server $servermetadata[0] -g $servermetadata[1] -o tsv --query "[].name")
+    }
     }
     Write-Output "#############################################################################################"
     Write-Output "`n`n#############################################################################################"
@@ -43,8 +52,8 @@ foreach ($BUname in $AllBU){
     Write-Output "#############################################################################################"   
     # PostgreSQL single server don't provide any high availability features
     $allpostgresqlsingleid=$(az postgres server list --query "[].id" -o tsv)
-    foreach ($id in $allpostgresqlflexibleid) {
-        az postgres server show -o tsv --ids $id --query "{ServerName:name, ResourceGroup:resourceGroup, SKU_Name:sku.name, SKU_Tier:sku.tier, isRedundant:highAvailability.mode, State:state, StorageSize_MB:storageProfile.storageMb, id:id}"
+    foreach ($id in $allpostgresqlsingleid) {
+        az postgres server show -o tsv --ids $id --query "{location:location, ServerName:name, ResourceGroup:resourceGroup, SKU_Name:sku.name, SKU_Tier:sku.tier, isRedundant:highAvailability.mode, State:state, StorageSize_MB:storageProfile.storageMb, id:id}"
     }         
 
     Write-Output "#############################################################################################"
@@ -64,15 +73,18 @@ foreach ($BUname in $AllBU){
     Write-Output "`n`n#############################################################################################"
     Write-Output "Get the status of Azure SQL MI"
     Write-Output "#############################################################################################"  
-    az sql mi list --query "[].{location:location, id:id, ServerName:name, resourceGroup:resourceGroup, SKU_capacity:sku.capacity, SKU_family:sku.family, SKU_tier:sku.tier, state:state, isRedundant:zoneRedundant}"
+    az sql mi list -o tsv --query "[].{location:location, id:id, ServerName:name, resourceGroup:resourceGroup, SKU_capacity:sku.capacity, SKU_family:sku.family, SKU_tier:sku.tier, state:state, isRedundant:zoneRedundant}"
     Write-Output "`n`n#############################################################################################"
     Write-Output "Get the dataabase of Azure SQL MI"
     Write-Output "#############################################################################################"  
     $allsqlmiid=$(az sql mi list --query "[].id" -o tsv)
      foreach ($id in $allsqlmiid) {
-        echo $id 
-        Write-Output "Copy the SQLMI ID next to it and use power query to combine"
-        az sql midb list --ids $id -o tsv --query "[].{name:name, resourceGroup:resourceGroup, id:id, status:status, type:type}"
+        $result=$(az sql midb list --ids $id -o tsv --query "[].{name:name, resourceGroup:resourceGroup, id:id, status:status, type:type}")
+        foreach ($item in $result) {
+            $row = $id + " " + $item
+            echo $row        
+
      }
 
+}
 }
