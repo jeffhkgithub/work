@@ -35,11 +35,7 @@ do
     echo "Get the status of CosmosDB"
     echo "#############################################################################################"
     echo "BUName,id,name,location,kind,isZoneRedundant"
-    condition=$(az cosmosdb list -o tsv --query "[].{name:name}")
-    echo $condition
-    if [ ! -z "$condition" ]; then
         az graph query -q "resources | where type =~ 'microsoft.documentdb/databaseaccounts' | where subscriptionId == '$sid' | extend locations = (properties.locations) | mv-expand locations | project id, name, location, kind, isZoneRedundant = tostring(locations.isZoneRedundant) " -o tsv --query "data[].{id:id, name:name,location:location,kind:kind,isRedundant:isZoneRedundant}" | sed 's/\t/,/g' | sed 's|^|'$BUname,'|g'
-    fi
     echo "#############################################################################################"
     echo "Get the status of SQLMI"
     echo "#############################################################################################"
