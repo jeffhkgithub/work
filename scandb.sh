@@ -6,7 +6,7 @@
 for BUname in $AllBU
 do
     az account set --name $BUname
-    id=$(az account show  --name $BUname -o tsv --query id)
+    sid=$(az account show  --name $BUname -o tsv --query id)
     echo "#############################################################################################"
     echo "Get the status SQL servers"
     echo "#############################################################################################"
@@ -25,11 +25,11 @@ do
     echo "BUName,location,ServerName,ResourceGroup,SKUName,SKU_Tier,isRedundant,State,StorageSize,ID"    
     for id in $allpostgresqlflexibleid
     do
-        az postgres flexible-server show -o tsv --ids $id --query "{location:location, ServerName:name, ResourceGroup:resourceGroup, SKU_Name:sku.name, SKU_Tier:sku.tier, isRedundant:highAvailability.mode, State:state, StorageSize:storage.storageSizeGb, id:id}" | sed 's/\t/,/g' | sed 's|^|'$BUname,$id,'|g'
+        az postgres flexible-server show -o tsv --ids $id --query "{location:location, ServerName:name, ResourceGroup:resourceGroup, SKU_Name:sku.name, SKU_Tier:sku.tier, isRedundant:highAvailability.mode, State:state, StorageSize:storage.storageSizeGb, id:id}" | sed 's/\t/,/g' | sed 's|^|'$BUname,'|g'
     done
     for id in $allpostgresqlsingleid
     do
-        az postgres server show -o tsv --ids $id --query "{location:location, ServerName:name, ResourceGroup:resourceGroup, SKU_Name:sku.name, SKU_Tier:sku.tier, isRedundant:highAvailability.mode, State:state, StorageSize:storage.storageSizeGb, id:id}" | sed 's/\t/,/g' | sed 's|^|'$BUname,$id,'|g'
+        az postgres server show -o tsv --ids $id --query "{location:location, ServerName:name, ResourceGroup:resourceGroup, SKU_Name:sku.name, SKU_Tier:sku.tier, isRedundant:highAvailability.mode, State:state, StorageSize:storage.storageSizeGb, id:id}" | sed 's/\t/,/g' | sed 's|^|'$BUname,'|g'
     done 
     echo "#############################################################################################"
     echo "Get the status of CosmosDB"
@@ -37,8 +37,8 @@ do
     echo "BUName,id,name,location,kind,isZoneRedundant"
     condition=$(az cosmosdb list -o tsv --query "[].{name:name}")
     echo $condition
-    if [ ! -z "$condition"]; then
-        az graph query -q "resources | where type =~ 'microsoft.documentdb/databaseaccounts' | where subscriptionId == '$id' | extend locations = (properties.locations) | mv-expand locations | project id, name, location, kind, isZoneRedundant = tostring(locations.isZoneRedundant) " -o tsv | sed 's/\t/,/g' | sed 's|^|'$BUname,'|g'
+    if [ ! -z "$condition" ]; then
+        az graph query -q "resources | where type =~ 'microsoft.documentdb/databaseaccounts' | where subscriptionId == '$sid' | extend locations = (properties.locations) | mv-expand locations | project id, name, location, kind, isZoneRedundant = tostring(locations.isZoneRedundant) " -o tsv --query "data[].{id:id, name:name,location:location,kind:kind,isRedundant:isZoneRedundant}" | sed 's/\t/,/g' | sed 's|^|'$BUname,'|g'
     fi
     echo "#############################################################################################"
     echo "Get the status of SQLMI"
