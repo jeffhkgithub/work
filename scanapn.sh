@@ -14,8 +14,8 @@ do
     echo "#############################################################################################"
     echo "Get the status of Webapp & FunctionApp & LogicApp"
     echo "#############################################################################################"
-    echo "AzureServiceType,AppName,Name,Location,Type,Status,AppServicePlan_ID"
-    az webapp list --output tsv --query "[].{AppName:name, Location:location, Type:kind, Status:state, AppServicePlan:appServicePlanId}" | sed 's/\t/,/g' | sed 's/^/WebApp,/g'
-    az functionapp list --output tsv --query "[].{AppName:name, Location:location, Type:kind, Status:state, AppServicePlan:appServicePlanId}"| sed 's/,/_/g' | sed 's/\t/,/g' | sed 's/^/FunctionApp,/g'
-    az logicapp list --output tsv --query "[].{AppName:name, Location:location, Type:kind, Status:state, AppServicePlan:appServicePlanId}" | sed 's/\t/,/g' | sed 's/^/LogicApp,/g'
+    echo "AzureServiceType,AppName,Name,Location,Type,Status,AppServicePlan_ID,isRedundant"
+    az webapp list --output tsv --query "[].{AppName:name, Location:location, Type:kind, Status:state, AppServicePlan:appServicePlanId, isRedundant:redundancyMode}" | sed 's/\t/,/g' | sed 's/^/WebApp,/g'
+    az functionapp list --output tsv --query "[].{AppName:name, Location:location, Type:kind, Status:state, AppServicePlan:appServicePlanId, isRedundant:redundancyMode}"| sed 's/,/_/g' | sed 's/\t/,/g' | sed 's/^/FunctionApp,/g'
+    az logicapp list --output tsv --query "[].{AppName:name, Location:location, Type:kind, Status:state, AppServicePlan:appServicePlanId, isRedundant:redundancyMode}" | sed 's/\t/,/g' | sed 's/^/LogicApp,/g'
 done
