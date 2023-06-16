@@ -1,5 +1,5 @@
 #AllBU=TOBEADDED
-$AllBU=$(az account list --all -o tsv --query "[].name")
+AllBU=$(az account list --all -o tsv --query "[].name")
 
 
 for BU in $AllBU
