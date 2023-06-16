@@ -41,5 +41,7 @@ do
     echo "#############################################################################################"
     echo "BUName,location,id,serverName,resourceGroup,SKU_capacity,SKU_family,SKU_tier,state,isZoneRedundant"
     az sql mi list -o tsv --query "[].{location:location, id:id, ServerName:name, resourceGroup:resourceGroup, SKU_capacity:sku.capacity, SKU_family:sku.family, SKU_tier:sku.tier, state:state, isRedundant:zoneRedundant}" | sed 's/\t/,/g' | sed 's|^|'$BUname,'|g'
-
+    echo "Get the status of MYSQL"
+    echo "#############################################################################################"
+    az mysql flexible-server list -o tsv --query "[].{SKU_name:sku.name, SKU_tier:sku.tier, ResourceGroup:resourceGroup, ServerName:name, resourceID:id,Zone:availabilityZone}" |sed 's/,/&/g' | sed 's/\t/,/g' | sed 's|^|'$BUname,'|g'    
 done
