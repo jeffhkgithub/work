@@ -1,8 +1,8 @@
+# Add MySQL in v2 version
 # Targe DB
-# Azure Cosmos DB for MongoDB account, SQL server, SQL VM, SQL MI, Azure Cosmos DB account, Azure Database for PostgreSQL flexible Server, Azure Database for PostgreSQL signer server
+# Azure Cosmos DB for MongoDB account, SQL server, SQL VM, SQL MI, Azure Cosmos DB account, Azure Database for PostgreSQL flexible Server, Azure Database for PostgreSQL single server, Azure MYSQL Server
 
-#AllBU=$(az account list --all -o tsv --query "[].name")
-#AllBU="TOBEADDED"
+AllBU=$(az account list --all -o tsv --query "[].name")
 for BUname in $AllBU
 do
     az account set --name $BUname
@@ -41,7 +41,9 @@ do
     echo "#############################################################################################"
     echo "BUName,location,id,serverName,resourceGroup,SKU_capacity,SKU_family,SKU_tier,state,isZoneRedundant"
     az sql mi list -o tsv --query "[].{location:location, id:id, ServerName:name, resourceGroup:resourceGroup, SKU_capacity:sku.capacity, SKU_family:sku.family, SKU_tier:sku.tier, state:state, isRedundant:zoneRedundant}" | sed 's/\t/,/g' | sed 's|^|'$BUname,'|g'
+    echo "#############################################################################################"    
     echo "Get the status of MYSQL"
     echo "#############################################################################################"
+    echo "SKU_name,SKU_Tier,ResourceGroup,ServerName,ResouceID,Zone"
     az mysql flexible-server list -o tsv --query "[].{SKU_name:sku.name, SKU_tier:sku.tier, ResourceGroup:resourceGroup, ServerName:name, resourceID:id,Zone:availabilityZone}" |sed 's/,/&/g' | sed 's/\t/,/g' | sed 's|^|'$BUname,'|g'    
 done
