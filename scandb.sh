@@ -50,3 +50,5 @@ do
     echo "SKU_name,SKU_Tier,ResourceGroup,ServerName,ResouceID,Zone"
     az mysql flexible-server list -o tsv --query "[].{SKU_name:sku.name, SKU_tier:sku.tier, ResourceGroup:resourceGroup, ServerName:name, resourceID:id,Zone:availabilityZone}" |sed 's/,/&/g' | sed 's/\t/,/g' | sed 's|^|'$BUname,'|g'    
 done
+# Revert to default setting
+az config set extension.use_dynamic_install=yes_prompt
