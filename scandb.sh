@@ -2,7 +2,7 @@
 # Targe DB
 # Azure Cosmos DB for MongoDB account, SQL server, SQL VM, SQL MI, Azure Cosmos DB account, Azure Database for PostgreSQL flexible Server, Azure Database for PostgreSQL single server, Azure MYSQL Server
 
-# Set dynamic_install as no prompt
+# Set dynamic_install as no prompt in case extension is not installed
 az config set extension.use_dynamic_install=yes_without_prompt
 # Scan Start
 AllBU=$(az account list --all -o tsv --query "[].name")
