@@ -15,7 +15,6 @@ do
     echo "Get the status of Azure AppGateway"
     echo "#############################################################################################"
     echo "gateway_name, resourceGroup, region, ZoneEnabled, Tier, Capacity, Generation, OpertaionalState, ResourceID"
-    # Work in progress
-    az graph query -q "resources| where subscriptionId =='$sid' | where type == 'microsoft.network/applicationgateways' | project name, resourceGroup, zones, properties.sku.tier, properties.sku.capacity,properties.sku.family, properties.operationalState, id" -o tsv --query "data[].{name:name, resourceGroup:resourceGroup, zones:zones, sku_name:sku_name, sku_capacity:sku_capacity, location:location, ResourceId:id}" | sed 's/\t/,/g' | sed 's|^|'$BUname,'|g'
+    az graph query -q "resources| where subscriptionId =='$sid' | where type == 'microsoft.network/applicationgateways' | project name, resourceGroup, zones, properties.sku.tier, properties.sku.capacity,properties.sku.family, properties.operationalState, id" -o tsv --query "data[].{name:name, resourceGroup:resourceGroup, zones:zones, sku_tier:properties_sku_tier, sku_capacity:properties_sku_capacity, generation:properties_sku_family, state:properties_operationalstate, ResourceId:id}" | sed 's/\t/,/g' | sed 's|^|'$BUname,'|g'
 
 done
