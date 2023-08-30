@@ -61,4 +61,20 @@ az graph query --first 1000 -q "resources | where type == 'microsoft.containerre
 --query "data[].{subscriptionId:subscriptionId, name:name, resourceGroup:resourceGroup, location:location, properties_zoneRedundancy:properties_zoneRedundancy, sku_name:sku_name, sku_tier:sku_tier, ResourceId:id}" \
 | sed 's/\t/,/g' | change_name
 
+echo "#############################################################################################"
+echo "Get the status of ExpressRoute and VPN Gateway"
+echo "#############################################################################################"
+echo "BU, gatewayName, resourceGroup, region, ZoneEnabled, gatewayIPSKU, gatewayType, gatewaySKU, gatewayTier, ResourceID"
+az graph query --first 1000 -q "resources  \
+| where type contains 'publicIPAddresses' and isnotempty (properties.ipAddress) \
+| where properties.ipConfiguration.id contains 'virtualnetworkgateway' \
+| extend sid = tostring(split(split(properties.ipConfiguration.id,'virtualNetworkGateways',1), '/', 1)[0]) \
+| join kind=leftouter (resources \
+    | where type contains 'virtualnetworkgateway' \
+    | extend  sid = tostring(name) \
+    ) on sid \
+| project subscriptionId, sid1, resourceGroup1, location, zones, gatewayIPSKU=sku.name, gatewayType=properties1.gatewayType, gatewaySKU=properties1.sku.name, gatewayTier=properties1.sku.tier, id=id1 \
+| sort by tostring(subscriptionId)" -o tsv \
+--query "data[].{subscriptionId:subscriptionId, sid1:sid1, resourceGroup1:resourceGroup1, location:location, zones:zones, gatewayIPSKU:gatewayIPSKU, gatewayType:gatewayType, gatewaySKU:gatewaySKU, gatewayTier:gatewayTier, id:id}" \
+| sed 's/\t/,/g' | change_name
 
