@@ -128,4 +128,15 @@ do
 done
 
 
+echo "#############################################################################################"
+echo "Get the status of Azure HDInsight"
+echo "#############################################################################################"
+echo "BU, Name, location, resourceGroup,  ZoneRedundant, ResourceID"
+az graph query --first 1000 -q "resources \
+| where type contains 'microsoft.hdinsight/clusters' \
+| project subscriptionId, name, location, resourceGroup, zones, id" \
+-o tsv \
+--query "data[].{subscriptionId:subscriptionId, name:name, location:location, resourceGroup:resourceGroup, zones:zones, ResourceId:id}" \
+| sed 's/\t/,/g' | change_name
+
 
