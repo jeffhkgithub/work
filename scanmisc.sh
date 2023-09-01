@@ -78,3 +78,27 @@ az graph query --first 1000 -q "resources  \
 --query "data[].{subscriptionId:subscriptionId, sid1:sid1, resourceGroup1:resourceGroup1, location:location, zones:zones, gatewayIPSKU:gatewayIPSKU, gatewayType:gatewayType, gatewaySKU:gatewaySKU, gatewayTier:gatewayTier, id:id}" \
 | sed 's/\t/,/g' | change_name
 
+echo "#############################################################################################"
+echo "Get the status of Azure LoadBalancer"
+echo "#############################################################################################"
+echo "BU,loadBalancerName, resourceGroup, sku_Name, sku_Tier, frontendName, ZoneEnabled, privateIP, publicIP, ResourceID"
+az graph query --first 1000 -q "resources \
+| where type contains 'loadbalancer' \
+| extend  frontendIPConfig= properties.frontendIPConfigurations \
+| mv-expand frontendIPConfig \
+| project subscriptionId, name, resourceGroup, sku_Name=sku.name, sku_Tier=sku.tier, frontendName=frontendIPConfig.name, ZoneEnabled=frontendIPConfig.zones, privateIP=frontendIPConfig.properties.privateIPAddress, publicIP=frontendIPConfig.properties.publicIPAddress.id, id" \
+-o tsv \
+--query "data[].{subscriptionId:subscriptionId, name:name, resourceGroup:resourceGroup, sku_Name:sku_Name, sku_Tier:sku_TIer, frontendName:frontendName, ZoneEnabled:ZoneEnabled, privateIP:privateIP, pubicIP:publicIP, ResourceId:id}" \
+| sed 's/\t/,/g' | change_name
+
+for ((i=1000; i<=8000; i+=1000))
+do
+    az graph query --first 1000 --skip $i -q "resources \
+    | where type contains 'loadbalancer' \
+    | extend  frontendIPConfig= properties.frontendIPConfigurations \
+    | mv-expand frontendIPConfig \
+    | project subscriptionId, name, resourceGroup, sku_Name=sku.name, sku_Tier=sku.tier, frontendName=frontendIPConfig.name, ZoneEnabled=frontendIPConfig.zones, privateIP=frontendIPConfig.properties.privateIPAddress, publicIP=frontendIPConfig.properties.publicIPAddress.id, id" \
+    -o tsv \
+    --query "data[].{subscriptionId:subscriptionId, name:name, resourceGroup:resourceGroup, sku_Name:sku_Name, sku_Tier:sku_TIer, frontendName:frontendName, ZoneEnabled:ZoneEnabled, privateIP:privateIP, pubicIP:publicIP, ResourceId:id}" \
+    | sed 's/\t/,/g' | change_name
+done
