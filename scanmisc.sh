@@ -102,3 +102,30 @@ do
     --query "data[].{subscriptionId:subscriptionId, name:name, resourceGroup:resourceGroup,  location:location, sku_Name:sku_Name, sku_Tier:sku_TIer, frontendName:frontendName, ZoneEnabled:ZoneEnabled, privateIP:privateIP, pubicIP:publicIP, ResourceId:id}" \
     | sed 's/\t/,/g' | change_name
 done
+
+echo "#############################################################################################"
+echo "Get the status of Azure Managed Disk"
+echo "#############################################################################################"
+echo "BU, diskName, location, resourceGroup, managedBy, ZoneRedundant, AvailableZoneLocation, sku_Name, sku_Tier, ResourceID"
+az graph query --first 1000 -q "resources \
+| where type contains 'microsoft.compute/disks' \
+| extend ZoneRedundant = tostring(split(sku.name, '_', 1)) \
+| project subscriptionId, diskName=name, location, resourceGroup, managedBy, ZoneRedundant, AvailableZoneLocation=zones, sku_Name=sku.name, sku_Tier=sku.tier, id" \
+-o tsv \
+--query "data[].{subscriptionId:subscriptionId, diskName:diskName, location:location, resourceGroup:resourceGroup, managedBy:managedBy, ZoneRedundant:ZoneRedundant, AvailableZoneLocation:AvailableZoneLocation, sku_Name:sku_Name, sku_Tier:sku_Tier, ResourceId:id}" \
+| sed 's/\t/,/g' | change_name
+
+
+for ((i=1000; i<=8000; i+=1000))
+do
+    az graph query --first 1000 -q "resources \
+    | where type contains 'microsoft.compute/disks' \
+    | extend ZoneRedundant = tostring(split(sku.name, '_', 1)) \
+    | project subscriptionId, diskName=name, location, resourceGroup, managedBy, ZoneRedundant, AvailableZoneLocation=zones, sku_Name=sku.name, sku_Tier=sku.tier, id" \
+    -o tsv \
+    --query "data[].{subscriptionId:subscriptionId, diskName:diskName, location:location, resourceGroup:resourceGroup, managedBy:managedBy, ZoneRedundant:ZoneRedundant, AvailableZoneLocation:AvailableZoneLocation, sku_Name:sku_Name, sku_Tier:sku_Tier, ResourceId:id}" \
+    | sed 's/\t/,/g' | change_name
+done
+
+
+
